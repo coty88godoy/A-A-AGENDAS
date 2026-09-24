@@ -36,6 +36,7 @@ a{color:var(--magenta)}a:hover{color:var(--magenta-dark)}
 h1,h2,h3,p{margin:0}
 ul,ol{margin:0;padding:0;list-style:none}
 button{font:inherit}
+[hidden]{display:none!important}
 
 .skip{position:absolute;left:-9999px;top:8px;z-index:100;background:var(--black);color:var(--white);padding:10px 16px;border-radius:999px}
 .skip:focus{left:8px}
@@ -182,7 +183,16 @@ button{font:inherit}
 .product__body p{font-size:15px;line-height:1.65;color:var(--gray)}
 .product__foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:12px}
 .price{font-family:var(--f-mono);font-size:18px;font-weight:700;color:var(--magenta)}
-.empty{text-align:center;color:var(--gray);font-size:17px}
+.catalog__note{max-width:440px}
+.catalog .filters{margin-top:-16px}
+.product__photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
+.card:hover .product__photo{transform:scale(1.04)}
+.variants{display:flex;flex-wrap:wrap;gap:6px;padding-top:4px}
+.variant{min-height:32px;padding:4px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--black);font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:border-color .2s,background-color .2s,color .2s}
+.variant:hover{border-color:var(--magenta);color:var(--magenta)}
+.variant.is-active{background:var(--magenta);border-color:var(--magenta);color:var(--white)}
+.variant:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
+.price--ask{font-size:13px;letter-spacing:.04em;text-transform:uppercase}
 .center{display:flex;justify-content:center}
 
 /* ---------- Cómo pedir ---------- */
@@ -347,6 +357,9 @@ button{font:inherit}
   .cat__art{right:0;bottom:-24px;transform:scale(.62);transform-origin:right bottom}
 
   .sec-head{align-items:flex-start}
+  .catalog .filters{flex-wrap:nowrap;overflow-x:auto;margin:-8px calc(var(--gutter) * -1) 0;padding:4px var(--gutter);scrollbar-width:none}
+  .catalog .filters::-webkit-scrollbar{display:none}
+  .chip{flex-shrink:0}
   .products{grid-template-columns:1fr}
   .product__img{height:300px}
 
