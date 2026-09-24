@@ -288,6 +288,21 @@ productsEl.addEventListener('click', (e) => {
 
 render();
 
+// Presupuesto para empresas → WhatsApp
+const bizForm = document.querySelector('[data-biz-form]');
+bizForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const d = new FormData(bizForm);
+  const val = (k) => (d.get(k) || '').toString().trim();
+  const partes = ['Hola! Quiero pedir un presupuesto para empresa.', ''];
+  if (val('empresa')) partes.push(`Empresa: ${val('empresa')}`);
+  partes.push(`Producto: ${val('producto')}`);
+  if (val('cantidad')) partes.push(`Cantidad aproximada: ${val('cantidad')}`);
+  if (val('fecha')) partes.push(`Para cuándo: ${val('fecha')}`);
+  partes.push('', 'Quisiera personalizar las tapas con nuestro logo. ¡Gracias!');
+  window.open(waLink(partes.join('\n')), '_blank', 'noopener');
+});
+
 // Preguntas frecuentes: una abierta por vez
 const faqs = document.querySelectorAll('.qa');
 faqs.forEach((d) => d.addEventListener('toggle', () => {
@@ -296,7 +311,7 @@ faqs.forEach((d) => d.addEventListener('toggle', () => {
 
 // Aparición suave de secciones al hacer scroll
 if ('IntersectionObserver' in window) {
-  const items = document.querySelectorAll('.cat, .step, .feature, .review, .qa, .final__box, .sec-head');
+  const items = document.querySelectorAll('.cat, .step, .feature, .review, .qa, .final__box, .biz__box, .sec-head');
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
