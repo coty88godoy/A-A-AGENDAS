@@ -192,6 +192,12 @@ button{font:inherit}
 .variant:hover{border-color:var(--magenta);color:var(--magenta)}
 .variant.is-active{background:var(--magenta);border-color:var(--magenta);color:var(--white)}
 .variant:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
+.lines{display:grid;grid-template-columns:1fr 1fr;padding:4px;margin-top:6px;border-radius:999px;background:var(--pink)}
+.line{min-height:40px;border:0;border-radius:999px;background:transparent;color:var(--black);font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background-color .2s,color .2s,box-shadow .2s}
+.line:hover{color:var(--magenta)}
+.line.is-active{background:var(--white);color:var(--magenta);box-shadow:0 2px 8px -2px rgba(157,3,113,.35)}
+.line:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
+.product__body .product__time{font-family:var(--f-mono);font-size:12px;letter-spacing:.04em;color:var(--gray);line-height:1.4}
 .price--ask{font-size:13px;letter-spacing:.04em;text-transform:uppercase}
 .center{display:flex;justify-content:center}
 

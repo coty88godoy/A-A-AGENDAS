@@ -32,8 +32,30 @@ const catName = (id) => (CATEGORIAS.find((c) => c.id === id) || {}).nombre || ''
 const COLORES = ['magenta', 'black', 'white'];
 const GIROS = [-4, 3, -3, 4];
 
-const pedidoMsg = (p, variante) =>
-  `Hola! Quiero pedir: ${p.nombre}${variante ? ` (${variante})` : ''}. ¿Me pasás precio y opciones de tapa?`;
+const precioDe = (p, linea) => {
+  const tabla = p.precios || PRECIOS[p.formato];
+  return tabla && tabla[linea] ? tabla[linea] : null;
+};
+const pesos = (n) => '$ ' + n.toLocaleString('es-AR');
+const lineaDe = (id) => LINEAS.find((l) => l.id === id);
+
+const pedidoMsg = (p, variante, linea) => {
+  const precio = precioDe(p, linea);
+  return `Hola! Quiero pedir: ${p.nombre}${variante ? ` (${variante})` : ''}, versión ${lineaDe(linea).nombre}` +
+    `${precio ? ` (${pesos(precio)})` : ''}. ¿Me pasás ${precio ? 'las opciones de tapa' : 'precio y opciones de tapa'}?`;
+};
+
+// Actualiza precio, tiempo de entrega y link de WhatsApp de una tarjeta según lo elegido
+const actualizarTarjeta = (card) => {
+  const p = PRODUCTOS[card.dataset.i];
+  const linea = card.dataset.linea;
+  const precio = precioDe(p, linea);
+  const priceEl = card.querySelector('.price');
+  priceEl.textContent = precio ? pesos(precio) : 'Consultar precio';
+  priceEl.classList.toggle('price--ask', !precio);
+  card.querySelector('.product__time').textContent = lineaDe(linea).entrega;
+  card.querySelector('[data-pedir]').href = waLink(pedidoMsg(p, card.dataset.variante, linea));
+};
 
 const productoHTML = (p, i) => {
   const img = p.foto
@@ -45,8 +67,11 @@ const productoHTML = (p, i) => {
         .map((v, j) => `<button type="button" class="variant${j === 0 ? ' is-active' : ''}" aria-pressed="${j === 0}">${esc(v)}</button>`)
         .join('')}</div>`
     : '';
-  const primera = p.variantes && p.variantes[0];
-  return `<article class="product card" data-i="${i}">
+  const primera = (p.variantes && p.variantes[0]) || '';
+  const lineas = `<div class="lines" role="group" aria-label="Elegí la versión">${LINEAS
+    .map((l, j) => `<button type="button" class="line${j === 0 ? ' is-active' : ''}" data-linea="${l.id}" aria-pressed="${j === 0}">${esc(l.nombre)}</button>`)
+    .join('')}</div>`;
+  return `<article class="product card" data-i="${i}" data-linea="${LINEAS[0].id}" data-variante="${esc(primera)}">
     <div class="product__img">
       ${img}
       <span class="tag">${p.nuevo ? 'NUEVO' : esc(catName(p.cat).toUpperCase())}</span>
@@ -56,9 +81,11 @@ const productoHTML = (p, i) => {
       <h3 class="display">${esc(p.nombre)}</h3>
       <p>${esc(p.desc)}</p>
       ${variantes}
+      ${lineas}
+      <p class="product__time"></p>
       <div class="product__foot">
-        <span class="price${p.precio ? '' : ' price--ask'}">${p.precio ? esc(p.precio) : 'Consultar precio'}</span>
-        <a href="${waLink(pedidoMsg(p, primera))}" target="_blank" rel="noopener" class="btn btn--outline btn--sm" data-pedir><svg class="ic"><use href="#i-wa"/></svg><span>Pedir</span></a>
+        <span class="price"></span>
+        <a href="#" target="_blank" rel="noopener" class="btn btn--outline btn--sm" data-pedir><svg class="ic"><use href="#i-wa"/></svg><span>Pedir</span></a>
       </div>
     </div>
   </article>`;
@@ -79,6 +106,7 @@ const render = () => {
   const recortar = filtroActual === 'todos' && !expandido && lista.length > TODOS_VISIBLES;
   const visibles = recortar ? lista.slice(0, TODOS_VISIBLES) : lista;
   productsEl.innerHTML = visibles.map(({ p, i }) => productoHTML(p, i)).join('');
+  productsEl.querySelectorAll('.product').forEach(actualizarTarjeta);
   moreBtn.hidden = !recortar;
   filtersEl.querySelectorAll('.chip').forEach((c) => {
     const activo = c.dataset.filter === filtroActual;
@@ -104,14 +132,17 @@ productsEl.addEventListener('click', (e) => {
     fav.setAttribute('aria-pressed', String(fav.getAttribute('aria-pressed') !== 'true'));
     return;
   }
-  const v = e.target.closest('.variant');
-  if (!v) return;
-  const card = v.closest('.product');
-  card.querySelectorAll('.variant').forEach((b) => {
-    b.classList.toggle('is-active', b === v);
-    b.setAttribute('aria-pressed', String(b === v));
+  const btn = e.target.closest('.variant, .line');
+  if (!btn) return;
+  const card = btn.closest('.product');
+  const grupo = btn.classList.contains('line') ? '.line' : '.variant';
+  card.querySelectorAll(grupo).forEach((b) => {
+    b.classList.toggle('is-active', b === btn);
+    b.setAttribute('aria-pressed', String(b === btn));
   });
-  card.querySelector('[data-pedir]').href = waLink(pedidoMsg(PRODUCTOS[card.dataset.i], v.textContent));
+  if (grupo === '.line') card.dataset.linea = btn.dataset.linea;
+  else card.dataset.variante = btn.textContent;
+  actualizarTarjeta(card);
 });
 
 render();
