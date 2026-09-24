@@ -28,6 +28,9 @@
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 10.5V7a3 3 0 0 1 6 0v3.5"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l1 13h9l1-13"/></symbol>
 </svg>
 
 <a class="skip" href="#contenido">Saltar al contenido</a>
@@ -48,6 +51,7 @@
       <a href="#" data-wa class="btn btn--primary btn--sm nav__mobile-cta"><svg class="ic"><use href="#i-wa"/></svg><span>Pedir por WhatsApp</span></a>
     </nav>
     <a href="#" data-wa class="btn btn--primary btn--sm nav__cta"><svg class="ic"><use href="#i-wa"/></svg><span>Pedir por WhatsApp</span></a>
+    <button type="button" class="cart-btn" data-cart-open aria-label="Ver mi pedido (0 productos)"><svg class="ic ic--25"><use href="#i-bag"/></svg><span class="cart-btn__count" data-cart-count hidden>0</span></button>
     <button class="nav__burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
   </div>
 </header>
@@ -339,6 +343,62 @@
     </div>
   </div>
 </footer>
+
+<dialog class="cart" data-cart aria-labelledby="cart-title">
+  <form class="cart__panel" data-cart-form novalidate>
+    <header class="cart__head">
+      <h2 id="cart-title" class="display">Mi pedido</h2>
+      <button type="button" class="cart__close" data-cart-close aria-label="Cerrar mi pedido"><svg class="ic"><use href="#i-close"/></svg></button>
+    </header>
+
+    <div class="cart__empty" data-cart-empty>
+      <span class="cart__empty-ic"><svg class="ic ic--28"><use href="#i-bag"/></svg></span>
+      <p>Todavía no agregaste productos.</p>
+      <a href="#catalogo" class="btn btn--dark btn--md" data-cart-close><span>Ver catálogo</span><svg class="ic ic--18"><use href="#i-arrow"/></svg></a>
+    </div>
+
+    <div class="cart__body" data-cart-filled hidden>
+      <ul class="cart__items" data-cart-items></ul>
+
+      <div class="cart__fields">
+        <p class="cart__label">Completá tus datos</p>
+        <div class="field">
+          <label for="cart-nombre">Tu nombre</label>
+          <input id="cart-nombre" name="nombre" type="text" autocomplete="name" placeholder="Ej: Sofía">
+        </div>
+        <div class="field">
+          <label for="cart-entrega">¿Cómo lo recibís?</label>
+          <select id="cart-entrega" name="entrega">
+            <option value="Retiro en Colonia Caroya">Retiro en Colonia Caroya</option>
+            <option value="Retiro en Jesús María">Retiro en Jesús María</option>
+            <option value="Envío a otra provincia por Correo Argentino">Envío a otra provincia (Correo Argentino)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cart-tapas">¿Qué querés en las tapas? <span>(opcional)</span></label>
+          <textarea id="cart-tapas" name="tapas" rows="3" placeholder="Nombre, frase, colores… o contanos tu idea"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <footer class="cart__foot" data-cart-filled hidden>
+      <div class="cart__total">
+        <span>Total</span>
+        <strong data-cart-total>$ 0</strong>
+      </div>
+      <p class="cart__note" data-cart-note hidden></p>
+      <button type="submit" class="btn btn--primary btn--lg cart__send"><svg class="ic"><use href="#i-wa"/></svg><span>Enviar pedido por WhatsApp</span></button>
+      <p class="cart__hint">Te respondemos por WhatsApp para confirmar el diseño y el pago.</p>
+      <button type="button" class="cart__clear" data-cart-clear>Vaciar pedido</button>
+    </footer>
+  </form>
+</dialog>
+
+<div class="toast" data-toast role="status" hidden>
+  <span class="toast__ic"><svg class="ic ic--18"><use href="#i-check"/></svg></span>
+  <span class="toast__text"><small>Agregado a tu pedido</small><span data-toast-text></span></span>
+  <button type="button" class="toast__btn" data-cart-open>Ver pedido</button>
+</div>
 
 <a href="#" data-wa class="wa-float pulse" aria-label="Escribinos por WhatsApp"><svg class="ic ic--28"><use href="#i-wa"/></svg></a>
 

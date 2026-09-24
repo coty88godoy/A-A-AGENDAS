@@ -39,13 +39,7 @@ const precioDe = (p, linea) => {
 const pesos = (n) => '$ ' + n.toLocaleString('es-AR');
 const lineaDe = (id) => LINEAS.find((l) => l.id === id);
 
-const pedidoMsg = (p, variante, linea) => {
-  const precio = precioDe(p, linea);
-  return `Hola! Quiero pedir: ${p.nombre}${variante ? ` (${variante})` : ''}, versión ${lineaDe(linea).nombre}` +
-    `${precio ? ` (${pesos(precio)})` : ''}. ¿Me pasás ${precio ? 'las opciones de tapa' : 'precio y opciones de tapa'}?`;
-};
-
-// Actualiza precio, tiempo de entrega y link de WhatsApp de una tarjeta según lo elegido
+// Actualiza precio y tiempo de entrega de una tarjeta según la versión elegida
 const actualizarTarjeta = (card) => {
   const p = PRODUCTOS[card.dataset.i];
   const linea = card.dataset.linea;
@@ -54,7 +48,6 @@ const actualizarTarjeta = (card) => {
   priceEl.textContent = precio ? pesos(precio) : 'Consultar precio';
   priceEl.classList.toggle('price--ask', !precio);
   card.querySelector('.product__time').textContent = lineaDe(linea).entrega;
-  card.querySelector('[data-pedir]').href = waLink(pedidoMsg(p, card.dataset.variante, linea));
 };
 
 const productoHTML = (p, i) => {
@@ -85,7 +78,7 @@ const productoHTML = (p, i) => {
       <p class="product__time"></p>
       <div class="product__foot">
         <span class="price"></span>
-        <a href="#" target="_blank" rel="noopener" class="btn btn--outline btn--sm" data-pedir><svg class="ic"><use href="#i-wa"/></svg><span>Pedir</span></a>
+        <button type="button" class="btn btn--primary btn--sm" data-add><svg class="ic"><use href="#i-bag"/></svg><span>Agregar</span></button>
       </div>
     </div>
   </article>`;
@@ -125,11 +118,159 @@ document.querySelectorAll('[data-filter-link]').forEach((a) =>
 );
 moreBtn.addEventListener('click', () => { expandido = true; render(); });
 
-// Variantes y favoritos dentro de las tarjetas
+// ---------- Carrito (se guarda en el navegador de la clienta) ----------
+const CART_KEY = 'aya-carrito';
+const cartDialog = document.querySelector('[data-cart]');
+const cartItemsEl = cartDialog.querySelector('[data-cart-items]');
+const cartForm = cartDialog.querySelector('[data-cart-form]');
+const cartCountEls = document.querySelectorAll('[data-cart-count]');
+const toastEl = document.querySelector('[data-toast]');
+
+const leerCarrito = () => {
+  try {
+    const guardado = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    // descarta productos que ya no existen en el catálogo
+    return Array.isArray(guardado) ? guardado.filter((it) => PRODUCTOS.some((p) => p.nombre === it.nombre) && lineaDe(it.linea) && it.cant > 0) : [];
+  } catch (e) { return []; }
+};
+let carrito = leerCarrito();
+const guardarCarrito = () => { try { localStorage.setItem(CART_KEY, JSON.stringify(carrito)); } catch (e) { /* sin almacenamiento */ } };
+
+const productoPorNombre = (nombre) => PRODUCTOS.find((p) => p.nombre === nombre);
+const cantidadTotal = () => carrito.reduce((n, it) => n + it.cant, 0);
+const itemTexto = (it) => [it.variante, lineaDe(it.linea).nombre].filter(Boolean).join(' · ');
+
+const agregarAlCarrito = (nombre, variante, linea) => {
+  const existente = carrito.find((it) => it.nombre === nombre && it.variante === variante && it.linea === linea);
+  if (existente) existente.cant += 1;
+  else carrito.push({ nombre, variante, linea, cant: 1 });
+  guardarCarrito();
+  renderCarrito();
+};
+
+const renderCarrito = () => {
+  const total = cantidadTotal();
+  cartCountEls.forEach((el) => { el.textContent = total; el.hidden = total === 0; });
+  document.querySelectorAll('[data-cart-open]').forEach((b) =>
+    b.setAttribute('aria-label', `Ver mi pedido (${total} ${total === 1 ? 'producto' : 'productos'})`)
+  );
+  cartDialog.querySelector('[data-cart-empty]').hidden = total > 0;
+  cartDialog.querySelectorAll('[data-cart-filled]').forEach((el) => { el.hidden = total === 0; });
+
+  let suma = 0;
+  let aConsultar = 0;
+  cartItemsEl.innerHTML = carrito.map((it, idx) => {
+    const precio = precioDe(productoPorNombre(it.nombre), it.linea);
+    if (precio) suma += precio * it.cant; else aConsultar += 1;
+    return `<li class="cart-item">
+      <div class="cart-item__info">
+        <p class="cart-item__name">${esc(it.nombre)}</p>
+        <p class="cart-item__meta">${esc(itemTexto(it))}</p>
+        <p class="cart-item__price">${precio ? pesos(precio * it.cant) : 'Precio a consultar'}</p>
+      </div>
+      <div class="cart-item__actions">
+        <div class="qty">
+          <button type="button" class="qty__btn" data-qty="-1" data-idx="${idx}" aria-label="Quitar uno de ${esc(it.nombre)}"><svg class="ic ic--16"><use href="#i-minus"/></svg></button>
+          <span class="qty__n" aria-live="polite">${it.cant}</span>
+          <button type="button" class="qty__btn" data-qty="1" data-idx="${idx}" aria-label="Sumar uno de ${esc(it.nombre)}"><svg class="ic ic--16"><use href="#i-plus"/></svg></button>
+        </div>
+        <button type="button" class="cart-item__remove" data-remove="${idx}" aria-label="Sacar ${esc(it.nombre)} del pedido"><svg class="ic ic--18"><use href="#i-trash"/></svg></button>
+      </div>
+    </li>`;
+  }).join('');
+
+  cartDialog.querySelector('[data-cart-total]').textContent = pesos(suma);
+  const nota = cartDialog.querySelector('[data-cart-note]');
+  nota.hidden = aConsultar === 0;
+  nota.textContent = aConsultar === 1
+    ? '+ 1 producto con precio a consultar'
+    : `+ ${aConsultar} productos con precio a consultar`;
+};
+
+const mensajePedido = () => {
+  const datos = new FormData(cartForm);
+  let suma = 0;
+  let aConsultar = false;
+  const lineas = carrito.map((it, n) => {
+    const precio = precioDe(productoPorNombre(it.nombre), it.linea);
+    if (precio) suma += precio * it.cant; else aConsultar = true;
+    return `${n + 1}. ${it.nombre} – ${itemTexto(it)} – x${it.cant} – ${precio ? pesos(precio * it.cant) : 'precio a consultar'}`;
+  });
+  const partes = ['Hola! Quiero hacer este pedido:', '', ...lineas, '',
+    `Total: ${pesos(suma)}${aConsultar ? ' (+ productos a consultar)' : ''}`];
+  const nombre = (datos.get('nombre') || '').trim();
+  const entrega = datos.get('entrega');
+  const tapas = (datos.get('tapas') || '').trim();
+  if (nombre) partes.push(`Nombre: ${nombre}`);
+  if (entrega) partes.push(`Entrega: ${entrega}`);
+  if (tapas) partes.push(`Para las tapas: ${tapas}`);
+  partes.push('', '¡Gracias!');
+  return partes.join('\n');
+};
+
+let ultimoFoco = null;
+const abrirCarrito = () => {
+  ultimoFoco = document.activeElement;
+  setMenu(false);
+  renderCarrito();
+  cartDialog.showModal();
+  document.documentElement.classList.add('cart-open');
+};
+const cerrarCarrito = () => cartDialog.close();
+cartDialog.addEventListener('close', () => {
+  document.documentElement.classList.remove('cart-open');
+  if (ultimoFoco) ultimoFoco.focus();
+});
+document.querySelectorAll('[data-cart-open]').forEach((b) => b.addEventListener('click', abrirCarrito));
+cartDialog.addEventListener('click', (e) => {
+  if (e.target === cartDialog || e.target.closest('[data-cart-close]')) { cerrarCarrito(); return; }
+  const q = e.target.closest('[data-qty]');
+  if (q) {
+    const it = carrito[q.dataset.idx];
+    it.cant += Number(q.dataset.qty);
+    if (it.cant < 1) carrito.splice(q.dataset.idx, 1);
+  }
+  const r = e.target.closest('[data-remove]');
+  if (r) carrito.splice(r.dataset.remove, 1);
+  if (e.target.closest('[data-cart-clear]')) carrito = [];
+  if (q || r || e.target.closest('[data-cart-clear]')) { guardarCarrito(); renderCarrito(); }
+});
+cartForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!carrito.length) return;
+  window.open(waLink(mensajePedido()), '_blank', 'noopener');
+});
+
+let toastTimer;
+const mostrarToast = (texto) => {
+  toastEl.querySelector('[data-toast-text]').textContent = texto;
+  toastEl.hidden = false;
+  requestAnimationFrame(() => toastEl.classList.add('is-in'));
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastEl.classList.remove('is-in');
+    setTimeout(() => { toastEl.hidden = true; }, 300);
+  }, 3500);
+};
+
+renderCarrito();
+
+// Variantes, versión, favoritos y "Agregar" dentro de las tarjetas
 productsEl.addEventListener('click', (e) => {
   const fav = e.target.closest('.fav');
   if (fav) {
     fav.setAttribute('aria-pressed', String(fav.getAttribute('aria-pressed') !== 'true'));
+    return;
+  }
+  const add = e.target.closest('[data-add]');
+  if (add) {
+    const card = add.closest('.product');
+    const p = PRODUCTOS[card.dataset.i];
+    agregarAlCarrito(p.nombre, card.dataset.variante, card.dataset.linea);
+    const label = add.querySelector('span');
+    label.textContent = '¡Agregado!';
+    setTimeout(() => { label.textContent = 'Agregar'; }, 1500);
+    mostrarToast(`${p.nombre} (${itemTexto({ variante: card.dataset.variante, linea: card.dataset.linea })})`);
     return;
   }
   const btn = e.target.closest('.variant, .line');
