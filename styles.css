@@ -37,6 +37,7 @@ h1,h2,h3,p{margin:0}
 ul,ol{margin:0;padding:0;list-style:none}
 button{font:inherit}
 [hidden]{display:none!important}
+.biz__text,.biz__form,.final__text,.field,.field input,.field select,.field textarea{min-width:0}
 
 .skip{position:absolute;left:-9999px;top:8px;z-index:100;background:var(--black);color:var(--white);padding:10px 16px;border-radius:999px}
 .skip:focus{left:8px}
@@ -407,7 +408,8 @@ html.cart-open{overflow:hidden}
   .final__box{padding:72px 56px}
   .final__text{grid-column:1 / -1}
   .final__art{display:none}
-  .biz__box{grid-template-columns:1fr;padding:56px 40px;gap:40px}
+  .biz__box{grid-template-columns:minmax(0,1fr);padding:56px 40px;gap:40px}
+  .final__box{display:block}
   .footer__brand{grid-column:1 / -1}
   .footer__nav{grid-column:span 4}
   .footer__contact{grid-column:span 8}
@@ -476,6 +478,9 @@ html.cart-open{overflow:hidden}
   .biz__form{padding:24px 20px}
   .biz__form-title{font-size:32px}
   .biz__art{justify-content:center;padding-left:0}
+  .biz__art .nb{--w:92px!important;--h:126px!important;--t:13px!important}
+  .biz__art .nb:nth-child(2){--w:108px!important;--h:148px!important;--t:15px!important}
+  .biz__send,.final .btn{white-space:normal;text-align:center;height:auto;min-height:56px;padding:12px 20px}
   .cart-btn{width:44px;height:44px}
   .cart__head,.cart__body,.cart__foot{padding-left:20px;padding-right:20px}
   .cart__head h2{font-size:34px}
