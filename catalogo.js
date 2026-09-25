@@ -71,8 +71,8 @@ const PRODUCTOS = [
   { cat: 'docentes', nombre: 'Agenda para directivos', formato: 'profesional', desc: 'Para la gestión de la escuela.', tapa: 'DIRE', sub: 'DIRECTIVOS', foto: null },
 
   // ---------- ESPECIALES (Econo = Premium − $10.000) ----------
-  { cat: 'especiales', nombre: 'Planificador de boda', desc: 'Para organizar cada detalle del gran día.', tapa: 'BODA', sub: 'PLANNER', foto: null },
-  { cat: 'especiales', nombre: 'Planificador de viaje', desc: 'Para planificar y recordar cada viaje.', tapa: 'VIAJE', sub: 'PLANNER', foto: null },
+  { cat: 'especiales', nombre: 'Planificador de boda', precios: { econo: 18000, premium: 28000 }, desc: 'Para organizar cada detalle del gran día.', tapa: 'BODA', sub: 'PLANNER', foto: null },
+  { cat: 'especiales', nombre: 'Planificador de viaje', precios: { econo: 18000, premium: 28000 }, desc: 'Para planificar y recordar cada viaje.', tapa: 'VIAJE', sub: 'PLANNER', foto: null },
   { cat: 'especiales', nombre: 'Control veterinario', precios: { econo: 15000, premium: 25000 }, desc: 'La salud de tu mascota, siempre a mano.', tapa: 'MASCOTA', sub: 'VETERINARIO', foto: null },
   { cat: 'especiales', nombre: 'Control vehicular', precios: { econo: 10000, premium: 20000 }, desc: 'Services, vencimientos y gastos del auto.', tapa: 'AUTO', sub: 'VEHICULAR', foto: null },
   { cat: 'especiales', nombre: 'Cuaderno de lectura', precios: { econo: 15000, premium: 25000 }, desc: 'Para registrar tus libros leídos.', tapa: 'LEO', sub: 'LECTURA', foto: null },
@@ -82,8 +82,8 @@ const PRODUCTOS = [
   { cat: 'especiales', nombre: 'Agenda de embarazo', precios: { econo: 18000, premium: 28000 }, desc: 'Para acompañar cada etapa de la espera.', tapa: 'BEBÉ', sub: 'EMBARAZO', foto: null },
   { cat: 'especiales', nombre: 'Cuaderno pediátrico', precios: { econo: 18000, premium: 28000 }, desc: 'Controles y crecimiento de tu peque.', tapa: 'PEQUE', sub: 'PEDIÁTRICO', foto: null },
   { cat: 'especiales', nombre: 'Agenda estudiantil', precios: { econo: 18000, premium: 28000 }, desc: 'Agenda semanal perpetua para la escuela o la facu.', variantes: ['Con corazones', 'Unisex'], tapa: 'ESTUDIO', sub: 'ESTUDIANTIL', foto: null },
-  { cat: 'especiales', nombre: 'Reseña de yerbas', precios: { econo: 16000 }, desc: 'Para puntuar cada yerba que probás. Econo en stock; Premium a pedido.', tapa: 'MATE', sub: 'YERBAS', foto: null },
-  { cat: 'especiales', nombre: 'Reseña de alfajores', precios: { econo: 16000 }, desc: 'Para puntuar cada alfajor que probás. Econo en stock; Premium a pedido.', tapa: 'ALFAJOR', sub: 'RESEÑAS', foto: null },
+  { cat: 'especiales', nombre: 'Reseña de yerbas', precios: { econo: 16000, premium: 26000 }, desc: 'Para puntuar cada yerba que probás. Econo en stock; Premium a pedido.', tapa: 'MATE', sub: 'YERBAS', foto: null },
+  { cat: 'especiales', nombre: 'Reseña de alfajores', precios: { econo: 16000, premium: 26000 }, desc: 'Para puntuar cada alfajor que probás. Econo en stock; Premium a pedido.', tapa: 'ALFAJOR', sub: 'RESEÑAS', foto: null },
   { cat: 'especiales', nombre: 'Agenda emprendedora', precios: { econo: 18000, premium: 28000 }, desc: 'Con planner semanal perpetuo para organizar tu emprendimiento.', tapa: 'EMPRENDE', sub: 'AGENDA', foto: null },
 
   // ---------- CUADERNOS ----------
