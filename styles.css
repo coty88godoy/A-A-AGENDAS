@@ -185,6 +185,18 @@ button{font:inherit}
 .product__foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:12px}
 .price{font-family:var(--f-mono);font-size:18px;font-weight:700;color:var(--magenta)}
 .catalog__note{max-width:440px}
+.compare{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;margin-top:-8px}
+.compare__card{border:1.5px solid var(--line);border-radius:20px;padding:22px 26px;display:flex;flex-direction:column;gap:8px;background:var(--white)}
+.compare__card--top{background:var(--black);border-color:var(--black);color:var(--white)}
+.compare__head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.compare__name{font-size:32px;line-height:1}
+.compare__badge{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:var(--magenta);color:var(--white);padding:6px 12px;border-radius:999px}
+.compare__time{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--gray)}
+.compare__card--top .compare__time{color:var(--white);opacity:.7}
+.compare__list{display:flex;flex-wrap:wrap;gap:8px 18px;padding-top:6px}
+.compare__list li{display:flex;align-items:center;gap:6px;font-size:14px}
+.compare__list .ic{color:var(--magenta);stroke-width:2.2}
+.compare__card--top .compare__list .ic{color:#E6A3D1}
 .catalog .filters{margin-top:-16px}
 .product__photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
 .card:hover .product__photo{transform:scale(1.04)}
@@ -447,6 +459,8 @@ html.cart-open{overflow:hidden}
   .cat__art{right:0;bottom:-24px;transform:scale(.62);transform-origin:right bottom}
 
   .sec-head{align-items:flex-start}
+  .compare{grid-template-columns:minmax(0,1fr)}
+  .compare__card{padding:18px 20px}
   .catalog .filters{flex-wrap:nowrap;overflow-x:auto;margin:-8px calc(var(--gutter) * -1) 0;padding:4px var(--gutter);scrollbar-width:none}
   .catalog .filters::-webkit-scrollbar{display:none}
   .chip{flex-shrink:0}

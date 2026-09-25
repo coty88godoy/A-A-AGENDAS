@@ -33,6 +33,7 @@ const COLORES = ['magenta', 'black', 'white'];
 const GIROS = [-4, 3, -3, 4];
 
 const precioDe = (p, linea) => {
+  if (p.sinLineas) return p.precio || null;
   const tabla = p.precios || PRECIOS[p.formato];
   return tabla && tabla[linea] ? tabla[linea] : null;
 };
@@ -47,7 +48,9 @@ const actualizarTarjeta = (card) => {
   const priceEl = card.querySelector('.price');
   priceEl.textContent = precio ? pesos(precio) : 'Consultar precio';
   priceEl.classList.toggle('price--ask', !precio);
-  card.querySelector('.product__time').textContent = lineaDe(linea).entrega;
+  const time = card.querySelector('.product__time');
+  time.textContent = linea ? lineaDe(linea).entrega : '';
+  time.hidden = !linea;
 };
 
 const productoHTML = (p, i) => {
@@ -61,10 +64,10 @@ const productoHTML = (p, i) => {
         .join('')}</div>`
     : '';
   const primera = (p.variantes && p.variantes[0]) || '';
-  const lineas = `<div class="lines" role="group" aria-label="Elegí la versión">${LINEAS
+  const lineas = p.sinLineas ? '' : `<div class="lines" role="group" aria-label="Elegí la versión">${LINEAS
     .map((l, j) => `<button type="button" class="line${j === 0 ? ' is-active' : ''}" data-linea="${l.id}" aria-pressed="${j === 0}">${esc(l.nombre)}</button>`)
     .join('')}</div>`;
-  return `<article class="product card" data-i="${i}" data-linea="${LINEAS[0].id}" data-variante="${esc(primera)}">
+  return `<article class="product card" data-i="${i}" data-linea="${p.sinLineas ? '' : LINEAS[0].id}" data-variante="${esc(primera)}">
     <div class="product__img">
       ${img}
       <span class="tag">${p.nuevo ? 'NUEVO' : esc(catName(p.cat).toUpperCase())}</span>
@@ -83,6 +86,17 @@ const productoHTML = (p, i) => {
     </div>
   </article>`;
 };
+
+// Comparación Econo vs Premium (sale de LINEAS en catalogo.js)
+document.querySelector('[data-compare]').innerHTML = LINEAS.map((l, j) => `
+  <div class="compare__card${j === LINEAS.length - 1 ? ' compare__card--top' : ''}">
+    <div class="compare__head">
+      <p class="compare__name display">${esc(l.nombre)}</p>
+      ${j === LINEAS.length - 1 ? '<span class="compare__badge">Más completa</span>' : ''}
+    </div>
+    <p class="compare__time">${esc(l.entrega)}</p>
+    <ul class="compare__list">${l.incluye.map((x) => `<li><svg class="ic ic--16"><use href="#i-check"/></svg>${esc(x)}</li>`).join('')}</ul>
+  </div>`).join('');
 
 const filtersEl = document.querySelector('[data-filters]');
 const productsEl = document.querySelector('[data-products]');
@@ -130,7 +144,7 @@ const leerCarrito = () => {
   try {
     const guardado = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
     // descarta productos que ya no existen en el catálogo
-    return Array.isArray(guardado) ? guardado.filter((it) => PRODUCTOS.some((p) => p.nombre === it.nombre) && lineaDe(it.linea) && it.cant > 0) : [];
+    return Array.isArray(guardado) ? guardado.filter((it) => PRODUCTOS.some((p) => p.nombre === it.nombre) && (!it.linea || lineaDe(it.linea)) && it.cant > 0) : [];
   } catch (e) { return []; }
 };
 let carrito = leerCarrito();
@@ -138,7 +152,7 @@ const guardarCarrito = () => { try { localStorage.setItem(CART_KEY, JSON.stringi
 
 const productoPorNombre = (nombre) => PRODUCTOS.find((p) => p.nombre === nombre);
 const cantidadTotal = () => carrito.reduce((n, it) => n + it.cant, 0);
-const itemTexto = (it) => [it.variante, lineaDe(it.linea).nombre].filter(Boolean).join(' · ');
+const itemTexto = (it) => [it.variante, it.linea && lineaDe(it.linea).nombre].filter(Boolean).join(' · ');
 
 const agregarAlCarrito = (nombre, variante, linea) => {
   const existente = carrito.find((it) => it.nombre === nombre && it.variante === variante && it.linea === linea);
@@ -270,7 +284,8 @@ productsEl.addEventListener('click', (e) => {
     const label = add.querySelector('span');
     label.textContent = '¡Agregado!';
     setTimeout(() => { label.textContent = 'Agregar'; }, 1500);
-    mostrarToast(`${p.nombre} (${itemTexto({ variante: card.dataset.variante, linea: card.dataset.linea })})`);
+    const detalle = itemTexto({ variante: card.dataset.variante, linea: card.dataset.linea });
+    mostrarToast(detalle ? `${p.nombre} (${detalle})` : p.nombre);
     return;
   }
   const btn = e.target.closest('.variant, .line');
